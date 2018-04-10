@@ -1,25 +1,24 @@
+var loaderTL, introTL, tagHolder;
+
 var tagStartTime = 1000;
 var tagDuration = 5000;
-
-var loaderTimeline;
 
 buildItems();
 idsToVars();
 setStates();
+setTimelines();
 setInteractions();
 
 setTimeout(showTag, tagStartTime);
-// setTimeout(hideTag, tagStartTime + tagDuration);
+setTimeout(hideTag, tagStartTime + tagDuration);
 
-function showTag() {
-  TweenMax.set(myTag, {autoAlpha:1});
-  TweenMax.to(SVGHolder, 1, {scale:1, ease:Elastic.easeOut, onComplete:pulse});
-  TweenMax.to(copy1, 0.8, {alpha:1, ease:Linear.easeNone, delay:0.6});
-  TweenMax.to(copy2, 0.8, {alpha:1, ease:Linear.easeNone, delay:0.7});
+function showTag() {  
+  loaderTL.play();
+  introTL.play();
 }
 
 function hideTag() {
-  TweenMax.set(myTag, {autoAlpha:1});
+  introTL.reverse();
 }
 
 function showOverlay() {
@@ -31,7 +30,7 @@ function closeOverlay() {
 }
 
 function pulse(){
-  TweenMax.staggerFromTo([pulse1, pulse2, pulse3], 1.4, {scale:1, alpha:0.6}, {scale:1.6, alpha:0, ease:Power2.easeInOut, repeat:-1, repeatDelay:1}, 0.3);
+  TweenMax.staggerFromTo([pulse1, pulse2, pulse3], 1.4, {scale:1, alpha:0.6}, {scale:1.6, alpha:0, ease:Power2.easeInOut, repeat:-1, repeatDelay:0.6}, 0.3);
 }
 
 function buildItems(){
@@ -103,28 +102,38 @@ function idsToVars() {
 function setStates(){
   TweenMax.set([myTag, myOverlay], {autoAlpha:0});
   TweenMax.set(SVGHolder, {scale:0, transformOrigin:"50% 100%"});
+  TweenMax.set(textHolder, {transformOrigin:"50% 0%"});
   TweenMax.set([pulse1, pulse2, pulse3], {transformOrigin:"50% 35%"});
   TweenMax.set([copy1, copy2], {alpha:0});
+  TweenMax.set(SVGCircleLoader, {transformOrigin:"50% 50%", rotation:-90});
+}
 
-  loaderTimeline = new TimelineMax({paused:true});
-  loaderTimeline.fromTo(SVGCircleLoader, 1, {drawSVG:"100%"}, {drawSVG:"0%", ease:Linear.easeNone});
+// Timelines
+function setTimelines(){
+  loaderTL = new TimelineMax({paused:true});
+  loaderTL.fromTo(SVGCircleLoader, (tagDuration / 1000), {drawSVG:"100%"}, {drawSVG:"0%", ease:Linear.easeNone});
+
+  introTL = new TimelineMax({paused:true});
+  introTL.add("frame1")
+    .set(myTag, {autoAlpha:1}, "frame1")
+    .to(SVGHolder, 0.4, {scale:1, ease:Back.easeOut, onComplete:pulse}, "frame1")
+    .to(copy1, 0.6, {alpha:1, ease:Linear.easeNone}, "frame1+=0.6")
+    .to(copy2, 0.6, {alpha:1, ease:Linear.easeNone}, "frame1+=0.7")
 }
 
 // All eventlisteners
 function setInteractions(){
-  var myTag = document.getElementById('myTag');
-
-  myTag.addEventListener('click', function(){
+  tagHolder.addEventListener('click', function(){
     showOverlay();
   });
 
-  myTag.addEventListener('mouseover', function(){
+  tagHolder.addEventListener('mouseover', function(){
     TweenMax.to([mainSVG, pulse1, pulse2, pulse3], 0.3, {fill:"#46E4C1"});
-    TweenMax.to(textHolder, 0.4, {scale:1.05});
+    TweenMax.to(textHolder, 0.3, {scale:1.04, ease:Linear.easeNone});
   });
 
-  myTag.addEventListener('mouseout', function(){
+  tagHolder.addEventListener('mouseout', function(){
     TweenMax.to([mainSVG, pulse1, pulse2, pulse3], 0.3, {fill:"#FFFFFF"});
-    TweenMax.to(textHolder, 0.4, {scale:1});    
+    TweenMax.to(textHolder, 0.3, {scale:1, ease:Linear.easeNone});    
   });
 }
