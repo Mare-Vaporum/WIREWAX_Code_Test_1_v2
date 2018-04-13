@@ -110,24 +110,13 @@ img { display: block; }
 
 #overlayBody {
   position: relative;
-  margin-top: -1px;
-  width: 1464px;
-  height: 978px;
-  border-radius: 0px 0px 25px 25px;
-  background-color: #FFFFFF;
-}
-
-#overlayBorder {
-  position: absolute;
-  top: 0px;
   width: 1464px;
   height: 980px;
   border: solid;
-  border-radius: 0px 0px 25px 25px;
   border-width: 10px;
   border-color: #000000;
-  background-color: transparent;
-  pointer-events: none;
+  border-radius: 0px 0px 25px 25px;
+  background-color: #FFFFFF;
 }
 
 #sliderImagesHolder {
@@ -145,7 +134,7 @@ img { display: block; }
 
 .arrowHolder {
   position: absolute;
-  top: 0;
+  top: 0px;
   width: 200px;
   height: 620px;
   cursor: pointer;
@@ -165,7 +154,7 @@ img { display: block; }
 }
 
 #lArrowImage {
-  left: 50px;
+  left: 40px;
   background: url("../img/LArrow.png") no-repeat;
 }
 
@@ -175,7 +164,7 @@ img { display: block; }
 }
 
 #rArrowImage {
-  right: 50px;
+  right: 40px;
   background: url("../img/RArrow.png") no-repeat;
 }
 

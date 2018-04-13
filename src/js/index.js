@@ -61,7 +61,7 @@ function buildDOMItems(){
   SVGHolder.appendChild(mainSVG);
 
   // main outline of the svg and the pulses
-  var mainOutline = "M50,99.5l-1.3-1.8C47.4,95.9,16,53.1,16,34.7C16,15.8,31.2,0.5,50,0.5c18.8,0,34,15.4,34,34.2c0,18.3-31.4,61.2-32.7,63L50,99.5z M50,3.7c-17,0-30.8,13.9-30.8,31C19.2,50,44,85.6,50,94c6-8.4,30.8-44,30.8-59.3,C80.8,17.6,67,3.7,50,3.7z";
+  var mainOutline = "M50,99.5l-1.3-1.8C47.4,95.9,16,53.1,16,34.7a34,34,0,1,1,68,0c0,18.3-31.4,61.2-32.7,63ZM50,3.7a30.92,30.92,0,0,0-30.8,31C19.2,50,44,85.6,50,94c6-8.4,30.8-44,30.8-59.3A30.92,30.92,0,0,0,50,3.7Z";
 
   for (var q=1; q<=3; q++){
     var tempPulse = document.createElementNS("http://www.w3.org/2000/svg",'path');
@@ -123,7 +123,6 @@ function buildDOMItems(){
             <span id='overlayCopy1' style='display: inline-block; width: 90%; font-size: 60px; font-style: italic'>THE LONDON EYE</span>
             <span id='overlayCopy2' style='display: inline-block; width: 90%; font-size: 40px; font-style: italic'>The London Eye, known for sponsorship reasons as the Coca-Cola London Eye, is a giant Ferris wheel on the South Bank of the River Thames in London. The structure is 443 feet tall and the wheel has a diameter of 394 feet.</span>
           </div>
-          <div id="overlayBorder"></div>
         </div>
       </div`;
 
@@ -185,6 +184,7 @@ function setTimelines(){
     .set(myOverlay, {autoAlpha:1}, "frame1")
     .from(overlayTopperHolder, 0.4, {x:"+=" + (overlayTopperHolder.offsetWidth/2), width:0, ease:Power2.easeIn}, "frame1")
     .from(overlayTopper, 0.4, {x:"-=" + (overlayTopper.offsetWidth/2), ease:Power2.easeIn}, "frame1")
+    .from(overlayBody, 0.01, {autoAlpha:0}, "frame1+=0.4")
     .from(overlayBody, 0.6, {height:0, ease:Power2.easeOut}, "frame1+=0.4")
     .from([overlayCopy1, overlayCopy2], 0.5, {alpha:0, y:"+=10"}, "frame1+=0.7")
 }
@@ -275,12 +275,12 @@ function setInteractions(){
 
   tagHolder.addEventListener('mouseover', function(){
     TweenMax.to([mainSVG, pulse1, pulse2, pulse3], 0.3, {fill:"#46E4C1"});
-    TweenMax.to(tagTextHolder, 0.3, {scale:1.04, ease:Linear.easeNone});
+    TweenMax.to(tagTextHolder, 0.3, {scale:1.04, force3D:false, ease:Linear.easeNone});
   });
 
   tagHolder.addEventListener('mouseout', function(){
     TweenMax.to([mainSVG, pulse1, pulse2, pulse3], 0.3, {fill:"#FFFFFF"});
-    TweenMax.to(tagTextHolder, 0.3, {scale:1, ease:Linear.easeNone});    
+    TweenMax.to(tagTextHolder, 0.3, {scale:1, force3D:false,  ease:Linear.easeNone});    
   });
 
 
