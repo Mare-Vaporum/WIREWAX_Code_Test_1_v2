@@ -102,7 +102,7 @@ function buildDOMItems(){
 
 
   // The overlay content featuring yet another way of adding a large amount of HTML to the DOM
-  myVideo.innerHTML += `
+  myOverlay.innerHTML += `
         <div id="overlayHolder">
         <div id="overlayTopperHolder">
           <div id="overlayTopper">
@@ -182,6 +182,7 @@ function setTimelines(){
 
   overlayTL = new TimelineMax({paused:true});
   overlayTL.add("frame1")
+    .set(myOverlay, {autoAlpha:1}, "frame1")
     .from(overlayTopperHolder, 0.4, {x:"+=" + (overlayTopperHolder.offsetWidth/2), width:0, ease:Power2.easeIn}, "frame1")
     .from(overlayTopper, 0.4, {x:"-=" + (overlayTopper.offsetWidth/2), ease:Power2.easeIn}, "frame1")
     .from(overlayBody, 0.6, {height:0, ease:Power2.easeOut}, "frame1+=0.4")
@@ -255,7 +256,7 @@ function checkNum(whatNumber, numberCheck){
 }
 
 function resizeOverlay(){
-  var scaler = (myVideo.offsetWidth/overlayHolder.offsetWidth) * 0.5;
+  var scaler = (myOverlay.offsetWidth/overlayHolder.offsetWidth) * 0.5;
   overlayHolder.style.transform = "translate(-50%, -50%) scale(" + scaler + ")"
 }
 
