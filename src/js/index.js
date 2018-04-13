@@ -1,10 +1,13 @@
 var loaderTL, introTL, overlayTL, tagHolder, sliderImagesHolder, overlayHolder;
 
-var tagStartTime = 1000;
+var tagStartTime = 2000;
 var tagDuration = 5000;
 var numberOfSliderImages = 6;
 var sliderIsAnimating = false;
 var currentSliderImage = 2;
+var showTagTimeout;
+var hideTagTimeout;
+var tagPop = true;
 
 buildDOMItems();
 idsToVars();
@@ -12,25 +15,36 @@ setTimelines();
 setInteractions();
 resizeOverlay();
 setStates();
+startTimeOuts();
 
-var showTagTimeout = setTimeout(showTag, tagStartTime);
-var hideTagTimeout = setTimeout(hideTag, tagStartTime + tagDuration);
+function startTimeOuts(){
+  showTagTimeout = setTimeout(showTag, tagStartTime);
+  hideTagTimeout = setTimeout(hideTag, tagStartTime + tagDuration);
+}
 
-function showTag() {  
-  loaderTL.play();
+function stopTimeOuts(){
+  clearTimeout(showTagTimeout);
+  clearTimeout(hideTagTimeout);
+}
+
+function showTag() { 
+  loaderTL.restart();
   introTL.play();
 }
 
 function hideTag() {
   introTL.reverse();
+  startTimeOuts();
 }
 
 function showOverlay() {
+  stopTimeOuts();
   overlayTL.play();
 }
 
 function closeOverlay() {
   overlayTL.reverse();
+  startTimeOuts();
 }
 
 function pulse(){
@@ -268,7 +282,7 @@ function resizeOverlay(){
 function setInteractions(){
   // Tag
   tagHolder.addEventListener('click', function(){
-    clearTimeout(hideTagTimeout);
+    stopTimeOuts();
     hideTag();
     setTimeout(showOverlay, 1000);
   });
