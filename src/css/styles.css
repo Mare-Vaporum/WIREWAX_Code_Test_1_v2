@@ -110,6 +110,7 @@ img { display: block; }
 
 #overlayBody {
   position: relative;
+  margin-top: -1px;
   width: 1464px;
   height: 978px;
   border-radius: 0px 0px 25px 25px;
@@ -118,7 +119,7 @@ img { display: block; }
 
 #overlayBorder {
   position: absolute;
-  top: -1px;
+  top: 0px;
   width: 1464px;
   height: 980px;
   border: solid;
