@@ -1,17 +1,20 @@
-var loaderTL, introTL, tagHolder, sliderImagesHolder;
+var loaderTL, introTL, overlayTL, tagHolder, sliderImagesHolder, overlayHolder;
 
 var tagStartTime = 1000;
 var tagDuration = 5000;
 var numberOfSliderImages = 6;
+var sliderIsAnimating = false;
+var currentSliderImage = 2;
 
 buildDOMItems();
 idsToVars();
-setStates();
 setTimelines();
 setInteractions();
+resizeOverlay();
+setStates();
 
-setTimeout(showTag, tagStartTime);
-setTimeout(hideTag, tagStartTime + tagDuration);
+var showTagTimeout = setTimeout(showTag, tagStartTime);
+var hideTagTimeout = setTimeout(hideTag, tagStartTime + tagDuration);
 
 function showTag() {  
   loaderTL.play();
@@ -23,16 +26,21 @@ function hideTag() {
 }
 
 function showOverlay() {
-  TweenMax.set(myOverlay, {autoAlpha:1});
+  overlayTL.play();
 }
 
 function closeOverlay() {
-  TweenMax.set(myOverlay, {autoAlpha:0});
+  overlayTL.reverse();
 }
 
 function pulse(){
   TweenMax.staggerFromTo([pulse1, pulse2, pulse3], 1.4, {scale:1, alpha:0.6}, {scale:1.6, alpha:0, ease:Power2.easeInOut, repeat:-1, repeatDelay:0.6}, 0.3);
 }
+
+
+//----------------------
+// DOM Builders
+//----------------------
 
 function buildDOMItems(){
   // TAG 
@@ -93,6 +101,32 @@ function buildDOMItems(){
   tagHolder.appendChild(tagTextHolder);
 
 
+  // The overlay content featuring yet another way of adding a large amount of HTML to the DOM
+  myVideo.innerHTML += `
+        <div id="overlayHolder">
+        <div id="overlayTopperHolder">
+          <div id="overlayTopper">
+            <div id="londonEye"></div>
+            <div id="skyline"></div>            
+          </div>
+        </div>
+        <div id="overlayBody">
+          <div id="sliderImagesHolder"></div>
+          <div id="lArrow" class="arrowHolder">
+            <div id="lArrowImage" class="arrowImage"></div>
+          </div>
+          <div id="rArrow" class="arrowHolder">
+            <div id="rArrowImage" class="arrowImage"></div>
+          </div>
+          <div id="closeBtn"></div>
+          <div id="overlayTextHolder">
+            <span id='overlayCopy1' style='display: inline-block; width: 90%; font-size: 60px; font-style: italic'>THE LONDON EYE</span>
+            <span id='overlayCopy2' style='display: inline-block; width: 90%; font-size: 40px; font-style: italic'>The London Eye, known for sponsorship reasons as the Coca-Cola London Eye, is a giant Ferris wheel on the South Bank of the River Thames in London. The structure is 443 feet tall and the wheel has a diameter of 394 feet.</span>
+          </div>
+          <div id="overlayBorder"></div>
+        </div>
+      </div`;
+
   // Images in overlay slider
   sliderImagesHolder = document.getElementById("sliderImagesHolder");
   for (var z=1; z<=numberOfSliderImages; z++){
@@ -110,20 +144,57 @@ function buildDOMItems(){
     tempImageDiv.appendChild(tempImage);
     sliderImagesHolder.appendChild(tempImageDiv);
   }
+}
 
 
-  // Overlay text
-  // var overlayTextHolder = document.createElement("div");
-  // overlayTextHolder.setAttribute("id", "overlayTextHolder");
-  overlayTextHolder.innerHTML += "<span id='copy2' style='display: inline-block; width: 90%; font-size: 60px; font-style: italic'>THE LONDON EYE</span>";
-  overlayTextHolder.innerHTML += "<span id='copy1' style='display: inline-block; width: 90%; font-size: 40px; font-style: italic'>The London Eye, known for sponsorship reasons as the Coca-Cola London Eye, is a giant Ferris wheel on the South Bank of the River Thames in London. The structure is 443 feet tall and the wheel has a diameter of 394 feet.</span>";
-  // tagHolder.appendChild(overlayTextHolder);
+//----------------------
+// Initial states
+//----------------------
 
+function setStates(){
+  TweenMax.set([myTag, myOverlay], {autoAlpha:0});
+  TweenMax.set(SVGHolder, {scale:0, transformOrigin:"50% 100%"});
+  TweenMax.set(tagTextHolder, {transformOrigin:"50% 0%"});
+  TweenMax.set([pulse1, pulse2, pulse3], {transformOrigin:"50% 35%"});
+  TweenMax.set([copy1, copy2], {alpha:0});
+  TweenMax.set(SVGCircleLoader, {transformOrigin:"50% 50%", rotation:-90});
+  TweenMax.set([lArrowImage, rArrowImage], {alpha:0.5});
+  TweenMax.set(londonEye, {x:740, y:80});
+  TweenMax.to(londonEye, 30, {rotation:360, repeat:-1, ease:Linear.easeNone})
 
 }
 
+
+//----------------------
+// Timelines
+//----------------------
+
+function setTimelines(){
+  loaderTL = new TimelineMax({paused:true});
+  loaderTL.fromTo(SVGCircleLoader, (tagDuration / 1000), {drawSVG:"100%"}, {drawSVG:"0%", ease:Linear.easeNone});
+
+  introTL = new TimelineMax({paused:true});
+  introTL.add("frame1")
+    .set(myTag, {autoAlpha:1}, "frame1")
+    .to(SVGHolder, 0.4, {scale:1, ease:Back.easeOut, onComplete:pulse}, "frame1")
+    .to(copy1, 0.6, {alpha:1, ease:Linear.easeNone}, "frame1+=0.6")
+    .to(copy2, 0.6, {alpha:1, ease:Linear.easeNone}, "frame1+=0.7")
+
+  overlayTL = new TimelineMax({paused:true});
+  overlayTL.add("frame1")
+    .from(overlayTopperHolder, 0.4, {x:"+=" + (overlayTopperHolder.offsetWidth/2), width:0, ease:Power2.easeIn}, "frame1")
+    .from(overlayTopper, 0.4, {x:"-=" + (overlayTopper.offsetWidth/2), ease:Power2.easeIn}, "frame1")
+    .from(overlayBody, 0.6, {height:0, ease:Power2.easeOut}, "frame1+=0.4")
+    .from([overlayCopy1, overlayCopy2], 0.5, {alpha:0, y:"+=10"}, "frame1+=0.7")
+}
+
+
+//----------------------
+// Functions
+//----------------------
+
 // This counts how many images ahve been loaded and once it gets to the total amount
-// it then creates the image strip.
+// it then creates the image strip with an offset of three images to the left.
 var sliderImagesTotalLoaded = 0;
 function sliderImageLoaded(){
     sliderImagesTotalLoaded++;
@@ -147,79 +218,33 @@ function idsToVars() {
   });
 }
 
-// Initial states
-function setStates(){
-  TweenMax.set([myTag, myOverlay], {autoAlpha:0});
-  TweenMax.set(SVGHolder, {scale:0, transformOrigin:"50% 100%"});
-  TweenMax.set(tagTextHolder, {transformOrigin:"50% 0%"});
-  TweenMax.set([pulse1, pulse2, pulse3], {transformOrigin:"50% 35%"});
-  TweenMax.set([copy1, copy2], {alpha:0});
-  TweenMax.set(SVGCircleLoader, {transformOrigin:"50% 50%", rotation:-90});
-  TweenMax.set([lArrowImage, rArrowImage], {alpha:0.5});
-}
-
-// Timelines
-function setTimelines(){
-  loaderTL = new TimelineMax({paused:true});
-  loaderTL.fromTo(SVGCircleLoader, (tagDuration / 1000), {drawSVG:"100%"}, {drawSVG:"0%", ease:Linear.easeNone});
-
-  introTL = new TimelineMax({paused:true});
-  introTL.add("frame1")
-    .set(myTag, {autoAlpha:1}, "frame1")
-    .to(SVGHolder, 0.4, {scale:1, ease:Back.easeOut, onComplete:pulse}, "frame1")
-    .to(copy1, 0.6, {alpha:1, ease:Linear.easeNone}, "frame1+=0.6")
-    .to(copy2, 0.6, {alpha:1, ease:Linear.easeNone}, "frame1+=0.7")
-}
-
-var currentSliderImage = 2;
+// This moves all the images in the slider
 function moveImageSlider(whichDirection){
-  
+  sliderIsAnimating = true;
+
   currentSliderImage = checkNum((currentSliderImage += (whichDirection == "left" ? 1 : -1)), numberOfSliderImages);
 
+  // First we calculate the distance the next image has to slide to be perfectly centered in the view
+  var targetImage = window["sliderImage" + currentSliderImage];  
+  var targetDestination = (sliderImagesHolder.offsetWidth/2) - (targetImage.offsetWidth/2);
+  var tempDistance = Math.abs(targetImage._gsTransform.x - targetDestination);  
 
-
-
+  // this checks to see if there would be an empty space aftre moving the images and 
+  // first moves the next image in the sequence to fill it
   if (whichDirection == "left"){
-      var moveSlide = window["sliderImage" + checkNum((currentSliderImage +  2), numberOfSliderImages)];
-      var tempFollowSlide = window["sliderImage" + (checkNum((currentSliderImage + 1), numberOfSliderImages))];
-      var tempFollowStart = tempFollowSlide._gsTransform.x + tempFollowSlide.offsetWidth;
-      TweenMax.set(moveSlide, {x:tempFollowStart});
+    var nextImage = window["sliderImage" + checkNum((currentSliderImage + 1), numberOfSliderImages)];
+    TweenMax.set(nextImage, {x:targetImage._gsTransform.x + targetImage.offsetWidth});
   } else {
-      var moveSlide = window["sliderImage" + checkNum((currentSliderImage +  -2), numberOfSliderImages)];
-      var tempFollowSlide = window["sliderImage" + (checkNum((currentSliderImage - 1), numberOfSliderImages))];
-      var tempFollowStart = tempFollowSlide._gsTransform.x - moveSlide.offsetWidth;
-      TweenMax.set(moveSlide, {x:tempFollowStart});
+    var nextImage = window["sliderImage" + checkNum((currentSliderImage - 1), numberOfSliderImages)];
+    TweenMax.set(nextImage, {x:targetImage._gsTransform.x - nextImage.offsetWidth});
   }
 
-
-
-
-
-  var tempImage = window["sliderImage" + currentSliderImage];  
-
-
-  var targetDestination = (sliderImagesHolder.offsetWidth/2) - (tempImage.offsetWidth/2);
-
-
-  var tempDistance = tempImage._gsTransform.x - targetDestination;  
-
-
-  // for (var w=1; w<=numberOfSliderImages; w++){
-  //   var followSlide, followStart;
-  //   var tempImageSlide = window["sliderImage" + w];
-
-  //   if (whichDirection == "left"){
-  //     followSlide = window["sliderImage" + (checkNum((w - 1), numberOfSliderImages))];
-  //     followStart = followSlide._gsTransform.x + followSlide.offsetWidth;
-  //   } else {
-  //     followSlide = window["sliderImage" + (checkNum((w + 1), numberOfSliderImages))];
-  //     followStart = followSlide._gsTransform.x - tempImageSlide.offsetWidth;
-  //   }
-    
-  //   var tempDestination = (whichDirection == "left" ? "-=" : "+=") + tempDistance;
-
-  //   TweenMax.fromTo(tempImageSlide, 0.6, {x:followStart}, {x:tempDestination});
-  // }
+  // Now we move them all!
+  for (var w=1; w<=numberOfSliderImages; w++){
+    var tempImageSlide = window["sliderImage" + w];
+    var tempDestination = (whichDirection == "left" ? "-=" : "+=") + tempDistance;
+    TweenMax.to(tempImageSlide, 0.6, {x:tempDestination, ease:Power2.easeInOut, onComplete:function(){ sliderIsAnimating=false; }});
+  }
   
 }
 
@@ -229,11 +254,22 @@ function checkNum(whatNumber, numberCheck){
     return whatNumber;
 }
 
+function resizeOverlay(){
+  var scaler = (myVideo.offsetWidth/overlayHolder.offsetWidth) * 0.5;
+  overlayHolder.style.transform = "translate(-50%, -50%) scale(" + scaler + ")"
+}
+
+
+//----------------------
 // All eventlisteners
+//----------------------
+
 function setInteractions(){
   // Tag
   tagHolder.addEventListener('click', function(){
-    showOverlay();
+    clearTimeout(hideTagTimeout);
+    hideTag();
+    setTimeout(showOverlay, 1000);
   });
 
   tagHolder.addEventListener('mouseover', function(){
@@ -247,15 +283,14 @@ function setInteractions(){
   });
 
 
-  // Image slider
+  // Image slider arrows
   lArrow.addEventListener('click', function(){
-    moveImageSlider("right");
+    sliderIsAnimating == false ? moveImageSlider("right") : null;
   });
 
   rArrow.addEventListener('click', function(){
-    moveImageSlider("left");
+    sliderIsAnimating == false ? moveImageSlider("left") : null;
   });
-
 
   var tempArrows = document.getElementsByClassName("arrowHolder");
   for (i = 0; i < tempArrows.length; i++) {
@@ -271,5 +306,20 @@ function setInteractions(){
     });
   }
 
+  // Close button
+  closeBtn.addEventListener('mouseover', function(){
+    TweenMax.to(closeBtn, 0.6, {rotation:"+=360", ease:Power2.easeInOut});    
+  });
+
+  closeBtn.addEventListener('mouseover', function(){
+    TweenMax.set(closeBtn, {rotation:0});    
+  });
+
+  closeBtn.addEventListener('click', function(){
+    closeOverlay();
+  });
+
+  // scale overlay when window resizes
+  window.addEventListener("resize", resizeOverlay);
 
 }

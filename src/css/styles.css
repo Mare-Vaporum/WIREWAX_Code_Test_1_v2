@@ -78,27 +78,47 @@ img { display: block; }
   height: auto;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.3);
+  transform: translate(-50%, -50%) scale(0.5);
+  overflow: hidden;
 }
 
-#overlayTopper {
+#overlayTopperHolder {
   position: relative;
   width: 1464px;
   height: 367px;
-  background: url("../img/overlayTopper.png") no-repeat;
+  overflow: hidden;
+}
+
+#overlayTopper {
+  width: 1464px;
+  height: 367px;
+}
+
+#skyline {
+  position: absolute;
+  width: 1464px;
+  height: 367px;
+  background: url("../img/skyline.png") no-repeat;
+}
+
+#londonEye {
+  position: absolute;
+  width: 267px;
+  height: 267px;
+  background: url("../img/londonEye.png") no-repeat;
 }
 
 #overlayBody {
   position: relative;
   width: 1464px;
-  height: 980px;
+  height: 978px;
   border-radius: 0px 0px 25px 25px;
   background-color: #FFFFFF;
 }
 
 #overlayBorder {
   position: absolute;
-  top: 0;
+  top: -1px;
   width: 1464px;
   height: 980px;
   border: solid;
@@ -156,6 +176,16 @@ img { display: block; }
 #rArrowImage {
   right: 50px;
   background: url("../img/RArrow.png") no-repeat;
+}
+
+#closeBtn {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  top: 50px;
+  right: 50px;
+  background: url("../img/closeBtn.png") no-repeat;
+  cursor: pointer;
 }
 
 #overlayTextHolder {
